@@ -1,19 +1,26 @@
 #import "../YTVideoOverlay/Header.h"
 #import "../YTVideoOverlay/Init.x"
 #import <YouTubeHeader/YTColor.h>
+#import <YouTubeHeader/YTReelHeaderView.h>
 #import <YouTubeHeader/YTMainAppVideoPlayerOverlayViewController.h>
 #import <YouTubeHeader/YTSingleVideoController.h>
 #import <YouTubeHeader/MLFormat.h>
 
 #define TweakKey @"YouQuality"
 
-@interface YTMainAppControlsOverlayView (YouQuality)
+@interface YTMainAppControlsOverlayView (YouQuality) // Top
 @property (retain, nonatomic) YTQTMButton *qualityButton;
 - (void)didPressYouQuality:(id)arg;
 - (void)updateYouQualityButton:(id)arg;
 @end
 
-@interface YTInlinePlayerBarContainerView (YouQuality)
+@interface YTReelHeaderView (YouQuality) // Top
+@property (retain, nonatomic) YTQTMButton *qualityButton;
+- (void)didPressYouQuality:(id)arg;
+- (void)updateYouQualityButton:(id)arg;
+@end
+
+@interface YTInlinePlayerBarContainerView (YouQuality) // Bottom
 @property (retain, nonatomic) YTQTMButton *qualityButton;
 - (void)didPressYouQuality:(id)arg;
 - (void)updateYouQualityButton:(id)arg;
@@ -108,6 +115,51 @@ NSString *getVideoQuality(NSString *label) {
     YTMainAppVideoPlayerOverlayViewController *c = [self valueForKey:@"_eventsDelegate"];
     [c didPressVideoQuality:arg];
     [self updateYouQualityButton:nil];
+}
+
+%end
+
+%hook YTReelHeaderView
+
+%property (retain, nonatomic) YTQTMButton *qualityButton;
+
+- (id)init {
+    self = %orig;
+    self.rightStackView = [[YTReelTransparentStackView alloc] init];
+    [self.view addSubview:self.rightStackView];
+    
+    self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
+    [self.rightStackView addArrangedSubview:self.qualityButton];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
+    return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    %orig;
+}
+
+- (YTQTMButton *)button:(NSString *)tweakId {
+    return [tweakId isEqualToString:TweakKey] ? self.qualityButton : %orig;
+}
+
+- (UIImage *)buttonImage:(NSString *)tweakId {
+    return [tweakId isEqualToString:TweakKey] ? qualityImage(currentQualityLabel) : %orig;
+}
+
+%new(v@:@)
+- (void)updateYouQualityButton:(id)arg {
+    [self.qualityButton setImage:qualityImage(currentQualityLabel) forState:0];
+}
+
+%new(v@:@)
+- (void)didPressYouQuality:(id)arg {
+    id<YTReelHeaderDelegate> c = [self delegate];
+    if ([c respondsToSelector:@selector(didPressVideoQuality:)]) {
+        [c didPressVideoQuality:arg];
+        [self updateYouQualityButton:nil];
+    }
 }
 
 %end
