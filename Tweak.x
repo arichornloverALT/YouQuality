@@ -126,7 +126,7 @@ NSString *getVideoQuality(NSString *label) {
 - (id)init {
     self = %orig;
     self.rightStackView = [[YTReelTransparentStackView alloc] init];
-    [self.view addSubview:self.rightStackView];
+    [self addSubview:self.rightStackView];
     
     self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
     [self.rightStackView addArrangedSubview:self.qualityButton];
