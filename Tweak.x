@@ -129,10 +129,10 @@ NSString *getVideoQuality(NSString *label) {
     
     self.rightStackView = [[YTReelTransparentStackView alloc] init];
     [self addSubview:self.rightStackView];
-
+    
     self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
     [self.rightStackView addArrangedSubview:self.qualityButton];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     
     return self;
@@ -153,7 +153,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %new(v@:@)
 - (void)updateYouQualityButton:(id)arg {
-    [self.qualityButton setImage:qualityImage(currentQualityLabel) forState:0];
+    [self.qualityButton setImage:qualityImage(currentQualityLabel) forState:UIControlStateNormal];
 }
 
 %new(v@:@)
