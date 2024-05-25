@@ -120,6 +120,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %end
 
+/*
 %hook YTReelHeaderView
 
 %property (retain, nonatomic) YTQTMButton *qualityButton;
@@ -166,6 +167,7 @@ NSString *getVideoQuality(NSString *label) {
 }
 
 %end
+*/
 
 %end
 
