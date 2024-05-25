@@ -2,6 +2,7 @@
 #import "../YTVideoOverlay/Init.x"
 #import <YouTubeHeader/YTColor.h>
 #import <YouTubeHeader/YTReelHeaderView.h>
+#import <YouTubeHeader/YTReelTransparentStackView.h>
 #import <YouTubeHeader/YTMainAppVideoPlayerOverlayViewController.h>
 #import <YouTubeHeader/YTSingleVideoController.h>
 #import <YouTubeHeader/MLFormat.h>
