@@ -126,16 +126,10 @@ NSString *getVideoQuality(NSString *label) {
 
 %property (retain, nonatomic) YTReelPlayerButton *qualityButton;
 
-- (id)init {
+- (id)initWithDelegate:(id)delegate {
     self = %orig;
-    
-    self.qualityButton = [[YTReelPlayerButton alloc] init];
-    [self addSubview:self.qualityButton];
-    
-    [self.qualityButton addTarget:self action:@selector(didPressYouQuality:) forControlEvents:UIControlEventTouchUpInside];
-    
+    self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
-    
     return self;
 }
 
