@@ -100,7 +100,7 @@ NSString *getVideoQuality(NSString *label) {
 }
 
 - (YTQTMButton *)button:(NSString *)tweakId {
-    return [tweakId isEqualToString:TweakKey] ? (YTQTMButton *)self.qualityButton : %orig;
+    return [tweakId isEqualToString:TweakKey] ? self.qualityButton : %orig;
 }
 
 - (UIImage *)buttonImage:(NSString *)tweakId {
@@ -123,7 +123,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %hook YTReelHeaderView
 
-%property (retain, nonatomic) YTQTMButton *qualityButton;
+%property (retain, nonatomic, readwrite) YTReelPlayerButton *qualityButton;
 
 - (id)init {
     self = %orig;
@@ -144,7 +144,7 @@ NSString *getVideoQuality(NSString *label) {
 }
 
 - (YTQTMButton *)button:(NSString *)tweakId {
-    return [tweakId isEqualToString:TweakKey] ? self.qualityButton : %orig;
+    return [tweakId isEqualToString:TweakKey] ? (YTQTMButton *)self.qualityButton : %orig;
 }
 
 - (UIImage *)buttonImage:(NSString *)tweakId {
@@ -158,11 +158,9 @@ NSString *getVideoQuality(NSString *label) {
 
 %new(v@:@)
 - (void)didPressYouQuality:(id)arg {
-    id<YTReelHeaderDelegate> c = [self delegate];
-    if ([c respondsToSelector:@selector(didPressVideoQuality:)]) {
-        [c didPressVideoQuality:arg];
-        [self updateYouQualityButton:nil];
-    }
+    YTReelHeaderDelegate *c = [self valueForKey:@"_delegate"];
+    [c didPressVideoQuality:arg];
+    [self updateYouQualityButton:nil];
 }
 
 %end
