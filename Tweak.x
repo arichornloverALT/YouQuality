@@ -11,14 +11,14 @@
 
 #define TweakKey @"YouQuality"
 
-@interface YTMainAppControlsOverlayView (YouQuality) // Top
+@interface YTMainAppControlsOverlayView (YouQuality) // Top (Default - Video Player)
 @property (retain, nonatomic) YTQTMButton *qualityButton;
 - (void)didPressYouQuality:(id)arg;
 - (void)updateYouQualityButton:(id)arg;
 @end
 
-@interface YTReelHeaderView (YouQuality) // Top
-@property (retain, nonatomic) YTQTMButton *qualityButton;
+@interface YTReelHeaderView (YouQuality) // Top (Shorts - Video Player)
+@property (retain, nonatomic) YTReelPlayerButton *qualityButton;
 - (void)didPressYouQuality:(id)arg;
 - (void)updateYouQualityButton:(id)arg;
 @end
