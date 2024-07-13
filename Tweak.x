@@ -120,7 +120,6 @@ NSString *getVideoQuality(NSString *label) {
 
 %end
 
-/*
 %hook YTReelHeaderView
 
 %property (retain, nonatomic) YTQTMButton *qualityButton;
@@ -128,11 +127,10 @@ NSString *getVideoQuality(NSString *label) {
 - (id)init {
     self = %orig;
     
-    self.rightStackView = [[YTReelTransparentStackView alloc] init];
-    [self addSubview:self.rightStackView];
+    self.qualityButton = [[YTReelPlayerButton alloc] init];
+    [self addSubview:self.qualityButton];
     
-    self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
-    [self.rightStackView addArrangedSubview:self.qualityButton];
+    [self.qualityButton addTarget:self action:@selector(didPressYouQuality:) forControlEvents:UIControlEventTouchUpInside];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     
@@ -167,7 +165,6 @@ NSString *getVideoQuality(NSString *label) {
 }
 
 %end
-*/
 
 %end
 
