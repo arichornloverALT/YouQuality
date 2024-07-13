@@ -1,6 +1,7 @@
 #import "../YTVideoOverlay/Header.h"
 #import "../YTVideoOverlay/Init.x"
 #import <YouTubeHeader/YTColor.h>
+#import <YouTubeHeader/YTReelPlayerViewController.h>
 #import <YouTubeHeader/YTReelHeaderView.h>
 #import <YouTubeHeader/YTReelPlayerButton.h>
 #import <YouTubeHeader/YTReelTransparentStackView.h>
@@ -158,7 +159,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %new(v@:@)
 - (void)didPressYouQuality:(id)arg {
-    YTReelHeaderDelegate *c = [self valueForKey:@"_delegate"];
+    YTReelPlayerViewController *c = [self valueForKey:@"_delegate"];
     [c didPressVideoQuality:arg];
     [self updateYouQualityButton:nil];
 }
