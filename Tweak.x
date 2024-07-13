@@ -130,12 +130,7 @@ NSString *getVideoQuality(NSString *label) {
     self = %orig;
     self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
-    UIStackView *rightStackView = [[UIStackView alloc] init];
-    rightStackView.axis = UILayoutConstraintAxisVertical;
-    rightStackView.alignment = UIStackViewAlignmentFill;
-    rightStackView.distribution = UIStackViewDistributionFill;
-    [self addSubview:rightStackView];
-    [rightStackView addArrangedSubview:self.qualityButton]; 
+    [self addView:self.qualityButton toStackView:self.rightStackView withSize:CGSizeMake(40, 40)];
     return self;
 }
 
@@ -159,7 +154,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %new(v@:@)
 - (void)didPressYouQuality:(id)arg {
-    YTReelPlayerViewController *c = [self valueForKey:@"_delegate"];
+    YTMainAppVideoPlayerOverlayViewController *c = [self valueForKey:@"_delegate"];
     [c didPressVideoQuality:arg];
     [self updateYouQualityButton:nil];
 }
