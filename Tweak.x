@@ -18,7 +18,7 @@
 @end
 
 @interface YTReelHeaderView (YouQuality) // Top (Shorts - Video Player)
-@property (retain, nonatomic) YTReelPlayerButton *qualityButton;
+@property (retain, nonatomic) YTQTMButton *qualityButton;
 - (void)didPressYouQuality:(id)arg;
 - (void)updateYouQualityButton:(id)arg;
 @end
@@ -124,12 +124,18 @@ NSString *getVideoQuality(NSString *label) {
 
 %hook YTReelHeaderView
 
-%property (retain, nonatomic) YTReelPlayerButton *qualityButton;
+%property (retain, nonatomic) YTQTMButton *qualityButton;
 
 - (id)initWithDelegate:(id)delegate {
     self = %orig;
     self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
+    UIStackView *rightStackView = [[UIStackView alloc] init];
+    rightStackView.axis = UILayoutConstraintAxisVertical;
+    rightStackView.alignment = UIStackViewAlignmentFill;
+    rightStackView.distribution = UIStackViewDistributionFill;
+    [self addSubview:rightStackView];
+    [rightStackView addArrangedSubview:self.qualityButton]; 
     return self;
 }
 
@@ -139,7 +145,7 @@ NSString *getVideoQuality(NSString *label) {
 }
 
 - (YTQTMButton *)button:(NSString *)tweakId {
-    return [tweakId isEqualToString:TweakKey] ? (YTQTMButton *)self.qualityButton : %orig;
+    return [tweakId isEqualToString:TweakKey] ? self.qualityButton : %orig;
 }
 
 - (UIImage *)buttonImage:(NSString *)tweakId {
