@@ -123,7 +123,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %hook YTReelHeaderView
 
-%property (retain, nonatomic, readwrite) YTReelPlayerButton *qualityButton;
+%property (retain, nonatomic) YTReelPlayerButton *qualityButton;
 
 - (id)init {
     self = %orig;
