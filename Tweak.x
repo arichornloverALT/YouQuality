@@ -99,7 +99,7 @@ NSString *getVideoQuality(NSString *label) {
 }
 
 - (YTQTMButton *)button:(NSString *)tweakId {
-    return [tweakId isEqualToString:TweakKey] ? self.qualityButton : %orig;
+    return [tweakId isEqualToString:TweakKey] ? (YTQTMButton *)self.qualityButton : %orig;
 }
 
 - (UIImage *)buttonImage:(NSString *)tweakId {
