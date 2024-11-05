@@ -5,6 +5,7 @@
 #import <YouTubeHeader/YTReelTransparentStackView.h>
 #import <YouTubeHeader/YTMainAppVideoPlayerOverlayViewController.h>
 #import <YouTubeHeader/YTSingleVideoController.h>
+#import <YouTubeHeader/YTTypeStyle.h>
 #import <YouTubeHeader/MLFormat.h>
 
 #define TweakKey @"YouQuality"
@@ -28,7 +29,7 @@
 @end
 
 NSString *YouQualityUpdateNotification = @"YouQualityUpdateNotification";
-NSString *currentQualityLabel = @"na";
+NSString *currentQualityLabel = @"N/A";
 
 NSBundle *YouQualityBundle() {
     static NSBundle *bundle = nil;
@@ -47,24 +48,49 @@ static UIImage *qualityImage(NSString *qualityLabel) {
     return [%c(QTMIcon) tintImage:[UIImage imageNamed:qualityLabel inBundle:YouQualityBundle() compatibleWithTraitCollection:nil] color:[%c(YTColor) white1]];
 }
 
-%group Video
-
-NSString *getVideoQuality(NSString *label) {
-    if ([label hasPrefix:@"2160p"] && ![label isEqualToString:@"2160p60"])
-        return @"2160p";
-    if ([label hasPrefix:@"1440p"] && ![label isEqualToString:@"1440p60"])
-        return @"1440p";
-    if ([label hasPrefix:@"1080p"] && ![label isEqualToString:@"1080p60"])
-        return @"1080p";
-    if ([label hasPrefix:@"720p"] && ![label isEqualToString:@"720p60"])
-        return @"720p";
-    return label;
+static void configureButtonStyle(YTQTMButton *button) {
+    [button setTitleColor:[%c(YTColor) white1] forState:0];
+    YTDefaultTypeStyle *defaultTypeStyle = [%c(YTTypeStyle) defaultTypeStyle];
+    UIFont *font = [defaultTypeStyle respondsToSelector:@selector(ytSansFontOfSize:weight:)]
+        ? [defaultTypeStyle ytSansFontOfSize:10 weight:UIFontWeightSemibold]
+        : [defaultTypeStyle fontOfSize:10 weight:UIFontWeightSemibold];
+    button.titleLabel.font = font;
+    button.titleLabel.numberOfLines = 3;
+    button.titleLabel.textAlignment = NSTextAlignmentCenter;
 }
 
-%hook YTSingleVideoController
+%group Video
 
-- (void)playerItem:(id)playerItem didSelectVideoFormat:(MLFormat *)format {
-    currentQualityLabel = getVideoQuality([format qualityLabel]);
+NSString *getCompactQualityLabel(MLFormat *format) {
+    NSString *qualityLabel = [format qualityLabel];
+    BOOL shouldShowFPS = [format FPS] > 30;
+    if ([qualityLabel hasPrefix:@"2160p"])
+        qualityLabel = [qualityLabel stringByReplacingOccurrencesOfString:@"2160p" withString:shouldShowFPS ? @"4K\n" : @"4K"];
+    else if ([qualityLabel hasPrefix:@"1440p"])
+        qualityLabel = [qualityLabel stringByReplacingOccurrencesOfString:@"1440p" withString:shouldShowFPS ? @"2K\n" : @"2K"];
+    else if ([qualityLabel hasPrefix:@"1080p"])
+        qualityLabel = [qualityLabel stringByReplacingOccurrencesOfString:@"1080p" withString:shouldShowFPS ? @"HD\n" : @"HD"];
+    else if (shouldShowFPS)
+        qualityLabel = [qualityLabel stringByReplacingOccurrencesOfString:@"p" withString:@"p\n"];
+    if ([qualityLabel hasSuffix:@" HDR"])
+        qualityLabel = [qualityLabel stringByReplacingOccurrencesOfString:@" HDR" withString:@"\nHDR"];
+    return qualityLabel;
+}
+
+%hook YTVideoQualitySwitchOriginalController
+
+- (void)singleVideo:(id)singleVideo didSelectVideoFormat:(MLFormat *)format {
+    currentQualityLabel = getCompactQualityLabel(format);
+    [[NSNotificationCenter defaultCenter] postNotificationName:YouQualityUpdateNotification object:nil];
+    %orig;
+}
+
+%end
+
+%hook YTVideoQualitySwitchRedesignedController
+
+- (void)singleVideo:(id)singleVideo didSelectVideoFormat:(MLFormat *)format {
+    currentQualityLabel = getCompactQualityLabel(format);
     [[NSNotificationCenter defaultCenter] postNotificationName:YouQualityUpdateNotification object:nil];
     %orig;
 }
@@ -81,14 +107,16 @@ NSString *getVideoQuality(NSString *label) {
 
 - (id)initWithDelegate:(id)delegate {
     self = %orig;
-    self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
+    self.qualityButton = [self createTextButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
+    configureButtonStyle(self.qualityButton);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     return self;
 }
 
 - (id)initWithDelegate:(id)delegate autoplaySwitchEnabled:(BOOL)autoplaySwitchEnabled {
     self = %orig;
-    self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
+    self.qualityButton = [self createTextButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
+    configureButtonStyle(self.qualityButton);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     return self;
 }
@@ -108,7 +136,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %new(v@:@)
 - (void)updateYouQualityButton:(id)arg {
-    [self.qualityButton setImage:qualityImage(currentQualityLabel) forState:0];
+    [self.qualityButton setTitle:currentQualityLabel forState:0];
 }
 
 %new(v@:@)
@@ -179,7 +207,8 @@ NSString *getVideoQuality(NSString *label) {
 
 - (id)init {
     self = %orig;
-    self.qualityButton = [self createButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
+    self.qualityButton = [self createTextButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
+    configureButtonStyle(self.qualityButton);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     return self;
 }
@@ -199,7 +228,7 @@ NSString *getVideoQuality(NSString *label) {
 
 %new(v@:@)
 - (void)updateYouQualityButton:(id)arg {
-    [self.qualityButton setImage:qualityImage(currentQualityLabel) forState:0];
+    [self.qualityButton setTitle:currentQualityLabel forState:0];
 }
 
 %new(v@:@)
