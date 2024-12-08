@@ -5,7 +5,6 @@
 #import <YouTubeHeader/YTReelTransparentStackView.h>
 #import <YouTubeHeader/YTMainAppVideoPlayerOverlayViewController.h>
 #import <YouTubeHeader/YTSingleVideoController.h>
-#import <YouTubeHeader/YTTypeStyle.h>
 #import <YouTubeHeader/MLFormat.h>
 
 #define TweakKey @"YouQuality"
@@ -42,21 +41,6 @@ NSBundle *YouQualityBundle() {
             bundle = [NSBundle bundleWithPath:[NSString stringWithFormat:ROOT_PATH_NS(@"/Library/Application Support/%@.bundle"), TweakKey]];
     });
     return bundle;
-}
-
-static UIImage *qualityImage(NSString *qualityLabel) {
-    return [%c(QTMIcon) tintImage:[UIImage imageNamed:qualityLabel inBundle:YouQualityBundle() compatibleWithTraitCollection:nil] color:[%c(YTColor) white1]];
-}
-
-static void configureButtonStyle(YTQTMButton *button) {
-    [button setTitleColor:[%c(YTColor) white1] forState:0];
-    YTDefaultTypeStyle *defaultTypeStyle = [%c(YTTypeStyle) defaultTypeStyle];
-    UIFont *font = [defaultTypeStyle respondsToSelector:@selector(ytSansFontOfSize:weight:)]
-        ? [defaultTypeStyle ytSansFontOfSize:10 weight:UIFontWeightSemibold]
-        : [defaultTypeStyle fontOfSize:10 weight:UIFontWeightSemibold];
-    button.titleLabel.font = font;
-    button.titleLabel.numberOfLines = 3;
-    button.titleLabel.textAlignment = NSTextAlignmentCenter;
 }
 
 %group Video
@@ -108,7 +92,6 @@ NSString *getCompactQualityLabel(MLFormat *format) {
 - (id)initWithDelegate:(id)delegate {
     self = %orig;
     self.qualityButton = [self createTextButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
-    configureButtonStyle(self.qualityButton);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     return self;
 }
@@ -116,7 +99,6 @@ NSString *getCompactQualityLabel(MLFormat *format) {
 - (id)initWithDelegate:(id)delegate autoplaySwitchEnabled:(BOOL)autoplaySwitchEnabled {
     self = %orig;
     self.qualityButton = [self createTextButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
-    configureButtonStyle(self.qualityButton);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     return self;
 }
@@ -128,10 +110,6 @@ NSString *getCompactQualityLabel(MLFormat *format) {
 
 - (YTQTMButton *)button:(NSString *)tweakId {
     return [tweakId isEqualToString:TweakKey] ? self.qualityButton : %orig;
-}
-
-- (UIImage *)buttonImage:(NSString *)tweakId {
-    return [tweakId isEqualToString:TweakKey] ? qualityImage(currentQualityLabel) : %orig;
 }
 
 %new(v@:@)
@@ -208,7 +186,6 @@ NSString *getCompactQualityLabel(MLFormat *format) {
 - (id)init {
     self = %orig;
     self.qualityButton = [self createTextButton:TweakKey accessibilityLabel:@"Quality" selector:@selector(didPressYouQuality:)];
-    configureButtonStyle(self.qualityButton);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateYouQualityButton:) name:YouQualityUpdateNotification object:nil];
     return self;
 }
@@ -220,10 +197,6 @@ NSString *getCompactQualityLabel(MLFormat *format) {
 
 - (YTQTMButton *)button:(NSString *)tweakId {
     return [tweakId isEqualToString:TweakKey] ? self.qualityButton : %orig;
-}
-
-- (UIImage *)buttonImage:(NSString *)tweakId {
-    return [tweakId isEqualToString:TweakKey] ? qualityImage(currentQualityLabel) : %orig;
 }
 
 %new(v@:@)
